@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
