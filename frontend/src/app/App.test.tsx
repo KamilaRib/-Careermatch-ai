@@ -27,6 +27,18 @@ describe("App shell", () => {
     expect(await screen.findByText(/ia não configurada/i)).toBeInTheDocument();
   });
 
+  it("shows an invalid AI key badge when ai_key_warning is present", async () => {
+    mockFetch(() =>
+      json({
+        ...healthy,
+        ai_configured: false,
+        ai_key_warning: "A chave configurada em GEMINI_API_KEY não possui o formato padrão",
+      }),
+    );
+    renderRoute("/");
+    expect(await screen.findByText(/chave ia inválida/i)).toBeInTheDocument();
+  });
+
   it("shows an error badge when the API is unreachable", async () => {
     mockFetch(() => json({ error: { code: "x", message: "down" } }, 500));
     renderRoute("/");

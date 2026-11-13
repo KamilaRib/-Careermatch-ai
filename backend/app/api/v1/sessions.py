@@ -13,14 +13,14 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 log = get_logger("app.sessions")
 
 
-@router.get("/current", response_model=SessionInfo, summary="Inicializa/consulta a sessÃ£o anÃ´nima")
+@router.get("/current", response_model=SessionInfo, summary="Inicializa/consulta a sessão anônima")
 def current_session(
     _: SessionData = Depends(get_session), settings: Settings = Depends(get_app_settings)
 ) -> SessionInfo:
     return SessionInfo(active=True, ttl_minutes=settings.session_ttl_minutes)
 
 
-@router.delete("/current", response_model=SessionDeleted, summary="Apaga todos os dados da sessÃ£o")
+@router.delete("/current", response_model=SessionDeleted, summary="Apaga todos os dados da sessão")
 def delete_session(request: Request, session: SessionData = Depends(get_session)) -> SessionDeleted:
     repo = request.app.state.session_repo
     deleted = repo.delete(session.session_id)

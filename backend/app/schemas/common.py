@@ -11,6 +11,7 @@ class HealthResponse(BaseModel):
     environment: str
     ai_provider: str
     ai_configured: bool
+    ai_key_warning: str | None = None
 
 
 class SessionInfo(BaseModel):

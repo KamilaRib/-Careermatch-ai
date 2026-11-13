@@ -12,6 +12,15 @@ function ApiStatus() {
   const { data, isLoading, isError } = useHealth();
   if (isLoading) return <Badge variant="outline">Conectando…</Badge>;
   if (isError || !data) return <Badge variant="destructive">API indisponível</Badge>;
+  if (data.ai_key_warning)
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge variant="destructive" tabIndex={0}>Chave IA inválida</Badge>
+        </TooltipTrigger>
+        <TooltipContent>{data.ai_key_warning}</TooltipContent>
+      </Tooltip>
+    );
   if (!data.ai_configured)
     return (
       <Tooltip>

@@ -14,6 +14,7 @@ from starlette.responses import JSONResponse, Response
 AI_PATH_PREFIXES = (
     "/api/v1/resumes/parse",
     "/api/v1/resumes/optimize",
+    "/api/v1/ats-resume/generate",
     "/api/v1/jobs/parse",
     "/api/v1/jobs/extract-url",
     "/api/v1/matching/analyze",

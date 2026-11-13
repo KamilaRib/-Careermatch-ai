@@ -18,4 +18,5 @@ def health(settings: Settings = Depends(get_app_settings)) -> HealthResponse:
         environment=settings.app_env,
         ai_provider=settings.ai_provider,
         ai_configured=settings.ai_configured,
+        ai_key_warning=settings.ai_key_warning,
     )
