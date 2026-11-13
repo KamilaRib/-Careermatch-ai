@@ -1,62 +1,51 @@
-# Arquitetura
+# Arquitetura — CareerMatch AI
 
-## Visão geral
+## Visão Geral
 
 ```mermaid
 flowchart LR
-  U["Navegador (React SPA)"] -->|"/api/v1 same-origin + cookie HttpOnly + X-CSRF-Token"| P["Vite dev proxy / Nginx"]
-  P --> API["FastAPI"]
-  API --> MW["Middlewares: logging, CORS, headers, body limit, rate limit, sessão/CSRF"]
-  MW --> R["Routers v1"]
+  U["Navegador (React 19 + TS + ShadCN)"] -->|"/api/v1 same-origin + cookie HttpOnly + X-CSRF-Token"| P["Vite Proxy / Nginx"]
+  P --> API["FastAPI (Python 3.12)"]
+  API --> MW["Middlewares: RequestLogging, CORS, SecurityHeaders, BodySizeLimit, RateLimit, Session/CSRF"]
+  MW --> R["Routers v1 (/resumes, /jobs, /matching, /ats-resume)"]
   R --> S["Services"]
-  S --> DP["Document processing"]
-  S --> ME["Matching engine (determinístico)"]
-  S --> AI["AI layer (LLMProvider)"]
-  AI --> G["Gemini"]
-  AI --> O["OpenAI"]
-  S --> EX["Exporter (ReportLab / python-docx)"]
-  S --> REPO["SessionRepository (memória + TTL)"]
+  S --> UG["UploadGuard + SSRFGuard"]
+  S --> DP["ResumeParser & JobParser"]
+  S --> ME["MatchingEngine (100% Determinístico)"]
+  S --> AG["ATSGenerator + Anti-Fabrication Guard"]
+  S --> AI["Camada Multiprovedor (LLMProvider)"]
+  AI --> OL["Ollama Local (llama3.2 - Padrão)"]
+  AI --> G["Gemini (Opcional)"]
+  AI --> O["OpenAI (Opcional)"]
+  S --> EV["EvidenceValidator (Literal / Fuzzy)"]
+  S --> EX["Exporters (PDF ReportLab / DOCX python-docx)"]
+  S --> REPO["SessionRepository (Memória + TTL)"]
 ```
 
 ## Backend (`backend/app`)
 
-| Pacote | Responsabilidade |
+| Módulo | Responsabilidade |
 |---|---|
-| `main.py` | Factory `create_app(settings)`, middlewares, lifespan (limpeza periódica de sessões) |
-| `core/` | Configuração validada (`pydantic-settings`), logging JSON, erros padronizados, observabilidade |
-| `api/v1/` | Routers versionados |
-| `schemas/` | Contratos Pydantic de entrada/saída |
-| `domain/` | Modelos e regras de negócio puras |
-| `services/` | Casos de uso (parsers, matching, otimizador, assistente, exportador) |
-| `ai/providers` | Interface `LLMProvider` + implementações Gemini/OpenAI |
-| `ai/prompts` | Templates de prompt versionados |
-| `ai/validators` | Validação de saídas da IA e verificação anti-fabricação |
-| `repositories/` | `SessionRepository` (in-memory agora, PostgreSQL/Supabase no futuro) |
-| `security/` | Sessão + CSRF, rate limit, limite de payload, headers, SSRF guard |
-
-### Ordem dos middlewares (de fora para dentro)
-`RequestLogging → CORS → SecurityHeaders → BodySizeLimit → RateLimit → Session/CSRF → Router`
+| `main.py` | Factory `create_app(settings)`, registro de middlewares e limpeza periódica de sessões (`lifespan`) |
+| `core/` | Configurações validadas (`pydantic-settings`), logging JSON estruturado (sem PII), erros padronizados |
+| `api/v1/` | Endpoints REST (`health`, `sessions`, `resumes`, `jobs`, `matching`, `ats_resume`) |
+| `schemas/` | Contratos Pydantic v2 (`resume.py`, `job.py`, `matching.py`, `ats_resume.py`, `common.py`) |
+| `services/` | Regras de negócio: `resume_parser.py`, `job_parser.py`, `matching_engine.py`, `ats_generator.py` |
+| `ai/providers/` | Protocolo `LLMProvider` + implementações `OllamaProvider` (padrão local), `GeminiProvider` e `OpenAIProvider` |
+| `ai/prompts/` | Prompts estruturados com isolamento de entradas não confiáveis (`<untrusted_resume_text>`, `<untrusted_job_text>`) |
+| `ai/validators/` | `evidence_validator.py`: verifica se cada item extraído possui comprovação literal no documento de origem |
+| `repositories/` | `InMemorySessionRepository` com isolamento por sessão e expiração automática por TTL |
+| `security/` | `upload_guard.py`, `ssrf_guard.py`, `session.py` (HttpOnly + CSRF double-submit), `rate_limit.py`, `middleware.py` |
 
 ## Frontend (`frontend/src`)
 
 | Pasta | Responsabilidade |
 |---|---|
-| `app/` | Rotas, providers (React Query, Tooltip, Toaster), navegação |
-| `components/ui` | Primitivas ShadCN/UI |
-| `components/layout` | Sidebar, Header, AppLayout, PageHeader |
-| `components/{resume,jobs,matching,assistant}` | Componentes de domínio |
-| `pages/` | Páginas roteadas |
-| `hooks/` | Hooks de dados (React Query) |
-| `services/` | Chamadas à API por domínio |
-| `lib/` | Cliente HTTP (CSRF, erros), utils |
-| `types/`, `schemas/` | Tipos TS e schemas Zod |
-
-## Decisões técnicas
-
-1. **Proxy same-origin:** o browser só fala com `/api`. Os cookies são first-party, o CSRF fica simples e nenhuma chave de IA chega ao cliente.
-2. **Sessão anônima:** ID de 256 bits em cookie HttpOnly, SameSite=Lax e Secure em produção. A expiração é deslizante e um job em background faz a limpeza.
-3. **CSRF double-submit:** o cookie `cm_csrf` (legível) precisa ser ecoado no header `X-CSRF-Token`, comparado em tempo constante com o valor no servidor.
-4. **IA interpreta, backend calcula:** o score é determinístico e reprodutível (ver `matching-methodology.md`).
-5. **Anti-fabricação:** toda saída otimizada passa por um validador que compara com os dados confirmados pelo usuário.
-6. **Tailwind v4 + tokens ShadCN:** a paleta fica em CSS variables (`src/styles/globals.css`). Cores claras (azul/amarelo) sempre usam texto escuro para manter contraste AA.
-7. **Sem banco no MVP:** a interface de repositório deixa a troca de persistência isolada.
+| `app/` | Roteamento (`routes.tsx`), provedores (`providers.tsx`) e shell principal (`App.tsx`) |
+| `components/ui/` | Componentes base ShadCN/UI + Radix + Tailwind CSS v4 |
+| `components/layout/` | `AppLayout`, `Header` (com indicador de status da API/IA e botão "Limpar meus dados"), `Sidebar` |
+| `components/resume/` | `ResumeUploadCard` (drag-and-drop) e `ResumeReviewForm` (React Hook Form + Zod) |
+| `pages/` | `HomePage`, `ResumePage` (`/curriculo`), `JobPage` (`/vaga`), `MatchPage` (`/compatibilidade`), `OptimizePage` (`/curriculo-ats`), `PrivacyPage` (`/privacidade`) |
+| `hooks/` | `useResume`, `useJob`, `useMatching`, `useATSResume` |
+| `services/` | Clientes de domínio consumindo `src/lib/api.ts` |
+| `types/` e `schemas/` | Tipagens TypeScript estritas e validações Zod |
