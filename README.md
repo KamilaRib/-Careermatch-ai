@@ -36,7 +36,7 @@ O projeto evoluiu de um megaprompt conceitual para uma arquitetura em camadas co
 | **3. Vagas** | Análise de descrição colada, URL pública com proteção anti-SSRF, manual e confirmação | ✅ Concluída |
 | **4. Matching ATS** | Motor determinístico ponderado, 5 estados de avaliação, evidências e dashboard Recharts | ✅ Concluída |
 | **5. Currículo ATS** | Otimização sem fabricação, histórico de alterações, aprovação humana e exportação PDF/DOCX | ✅ Concluída |
-| **6. Assistente** | Chat contextual de carreira | ⏳ Planejada |
+| **6. Assistente** | Chat contextual de candidatura integrado aos dados da sessão (somente leitura no score) | ✅ Concluída |
 | **7. Qualidade E2E** | Automação Playwright ponta a ponta | ⏳ Planejada |
 
 ---

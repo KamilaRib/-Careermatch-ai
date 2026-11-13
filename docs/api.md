@@ -34,3 +34,6 @@ Base: `/api/v1`. A documentação interativa (OpenAPI/Swagger) fica em `/api/doc
 | `GET` | `/api/v1/ats-resume/current` | 5 | Retorna o currículo ATS otimizado atual da sessão |
 | `PUT` | `/api/v1/ats-resume/current` | 5 | Salva ajustes manuais e registra a aprovação humana (`approved=true`) |
 | `GET` | `/api/v1/ats-resume/export/{fmt}` | 5 | Exporta o currículo ATS aprovado em `pdf`, `docx`, `txt` ou `md` |
+| `GET` | `/api/v1/assistant/current` | 6 | Retorna o histórico do assistente, resumo do contexto da sessão e perguntas sugeridas |
+| `POST` | `/api/v1/assistant/chat` | 6 | Envia pergunta contextual ao assistente (com citações e sem alterar o score ATS) |
+| `DELETE` | `/api/v1/assistant/history` | 6 | Limpa o histórico de mensagens do assistente na sessão atual |

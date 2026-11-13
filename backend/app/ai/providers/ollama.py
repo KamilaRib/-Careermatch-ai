@@ -314,3 +314,37 @@ class OllamaProvider:
         if isinstance(llm_obj, dict):
             return str(llm_obj.get("optimized_summary") or "").strip()
         return ""
+
+    async def chat_assistant_fast(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+    ) -> str:
+        """Executes a grounded, CPU-friendly assistant response pass on local Ollama."""
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "stream": False,
+            "options": {
+                "temperature": 0.1,
+                "num_ctx": 1024,
+                "num_predict": 140,
+            },
+        }
+        raw_content = await self._post_chat(payload)
+        cleaned = _CODE_FENCE_RE.sub("", raw_content.strip()).strip()
+        if not cleaned:
+            raise AIUnavailableError("Ollama retornou resposta vazia no assistente.")
+        if cleaned.startswith("{"):
+            try:
+                llm_obj = json.loads(cleaned)
+                if isinstance(llm_obj, dict) and llm_obj.get("answer"):
+                    return str(llm_obj["answer"]).strip()
+            except json.JSONDecodeError:
+                pass
+        return cleaned
+

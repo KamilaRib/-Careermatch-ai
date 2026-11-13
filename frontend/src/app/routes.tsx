@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AssistantPage } from "@/pages/AssistantPage";
 import HomePage from "@/pages/HomePage";
 import JobPage from "@/pages/JobPage";
 import MatchPage from "@/pages/MatchPage";
@@ -7,7 +8,6 @@ import NotFoundPage from "@/pages/NotFoundPage";
 import { OptimizePage } from "@/pages/OptimizePage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import ResumePage from "@/pages/ResumePage";
-import { AssistantPage } from "@/pages/ModulePages";
 
 export const routes: RouteObject[] = [
   {

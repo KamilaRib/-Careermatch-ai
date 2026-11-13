@@ -1,7 +1,7 @@
 # Relatório de Auditoria Técnica Pré-Publicação no GitHub — CareerMatch AI
 
 **Data da Auditoria:** 12 de novembro de 2026  
-**Escopo Auditado:** Repositório `C:\Users\kamil\Projetos Dio\careermatch-ai` (Fases 1 a 5 completas: Fundação, Currículos, Vagas, Matching ATS Determinístico e Currículo ATS Friendly)  
+**Escopo Auditado:** Repositório `C:\Users\kamil\Projetos Dio\careermatch-ai` (Fases 1 a 6 completas: Fundação, Currículos, Vagas, Matching ATS Determinístico, Currículo ATS Friendly e Assistente Contextual de Candidatura)  
 **Perfis de Auditoria:** Arquitetura de Software Sênior, Engenharia de IA, Segurança de Aplicações (AppSec), QA e DevOps.
 
 ---
@@ -11,9 +11,9 @@
 O projeto **CareerMatch AI** passou por uma auditoria técnica e de segurança completa visando sua publicação no GitHub (`https://github.com/KamilaRib/-Careermatch-ai.git`).
 
 - **Segurança e Privacidade:** Nenhum arquivo `.env`, chave de API ou dado pessoal está rastreado pelo Git ou presente no histórico de commits (`git log -p` e `git grep` retornaram `0` ocorrências de padrões de chaves). As proteções contra uploads maliciosos (`upload_guard.py`), SSRF (`ssrf_guard.py`), CSRF *double-submit*, rate limiting e sanitização de logs sem PII estão ativas e cobertas por testes automatizados.
-- **Integridade Funcional e Anti-Alucinação:** O motor determinístico de Matching ATS e o gerador de Currículo ATS Friendly respeitam rigorosamente a regra de **Zero Fabricação**. Tecnologias correlatas (como `Docker` e `AWS` quando a vaga pede `Kubernetes`) **nunca** concedem pontuação ou evidência automática (`state: "nao_identificado"`, `credit: 0.0`), gerando apenas recomendações consultivas.
-- **Qualidade e Testes:** **67/67 testes de backend (`pytest`)** e **19/19 testes de frontend (`vitest` em 6 suítes)** aprovados (`0` falhas, `0` ignorados), com `npx tsc -b` (`0` erros TypeScript) e `npm run build` concluídos com código de saída `0`.
-- **Parecer Final:** **APTO PARA PUSH** (após inclusão dos arquivos de documentação atualizados no índice do Git e aprovação explícita da usuária).
+- **Integridade Funcional e Anti-Alucinação:** O motor determinístico de Matching ATS, o gerador de Currículo ATS Friendly e o Assistente de Candidatura respeitam rigorosamente a regra de **Zero Fabricação** e **Imutabilidade do Score ATS via Chat**. Tecnologias correlatas (como `Docker` e `AWS` quando a vaga pede `Kubernetes`) **nunca** concedem pontuação ou evidência automática (`state: "nao_identificado"`, `credit: 0.0`), gerando apenas recomendações consultivas.
+- **Qualidade e Testes:** **71/71 testes de backend (`pytest`)** e **21/21 testes de frontend (`vitest` em 7 suítes)** aprovados (`0` falhas, `0` ignorados — total de **92 testes automatizados**), com `npx tsc -b` (`0` erros TypeScript) e `npm run build` concluídos com código de saída `0`.
+- **Parecer Final:** **APTO PARA PUSH** (após aprovação explícita da usuária).
 
 ---
 
